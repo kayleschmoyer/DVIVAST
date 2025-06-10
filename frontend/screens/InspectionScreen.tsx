@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ScrollView, Button, View } from 'react-native';
+import { ScrollView, View, StyleSheet } from 'react-native';
+import { Button, Snackbar } from 'react-native-paper';
 import PartCard from '../components/PartCard';
 import { InspectionPart } from '../types';
 import { submitInspection } from '../api/client';
@@ -10,23 +11,26 @@ const parts = ['Brakes', 'Tires', 'Fluids'];
 
 export default function InspectionScreen({ estimateId, mechanicId }: Props) {
   const [data, setData] = useState<Record<string, InspectionPart>>({});
+  const [msg, setMsg] = useState('');
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const payload = {
       estimateId,
       mechanicId,
-      parts: Object.entries(data).map(([part, partData]) => ({
-        part,
-        ...partData
-      })),
+      parts: Object.entries(data).map(([part, partData]) => ({ part, ...partData })),
       timestamp: new Date().toISOString()
     };
-    submitInspection(payload).catch(() => {});
+    try {
+      await submitInspection(payload);
+      setMsg('Inspection submitted');
+    } catch {
+      setMsg('Failed to submit');
+    }
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scroll}>
         {parts.map(part => (
           <PartCard
             key={part}
@@ -36,7 +40,16 @@ export default function InspectionScreen({ estimateId, mechanicId }: Props) {
           />
         ))}
       </ScrollView>
-      <Button title="Submit" onPress={handleSubmit} />
+      <Button mode="contained" onPress={handleSubmit} style={styles.submit}>
+        Submit Inspection
+      </Button>
+      <Snackbar visible={!!msg} onDismiss={() => setMsg('')}>{msg}</Snackbar>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  scroll: { padding: 16 },
+  submit: { margin: 16 }
+});

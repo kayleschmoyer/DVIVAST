@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import StatusSelector from './StatusSelector';
+import { StyleSheet } from 'react-native';
+import { Card, TextInput } from 'react-native-paper';
+import StatusSelector, { Status } from './StatusSelector';
 import { InspectionPart } from '../types';
 
 interface Props {
@@ -11,23 +12,27 @@ interface Props {
 
 export default function PartCard({ part, data, onChange }: Props) {
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>{part}</Text>
-      <StatusSelector status={data.status} onChange={(status) => onChange({ ...data, status })} />
-    </View>
+    <Card style={styles.card}>
+      <Card.Title title={part} titleStyle={styles.title} />
+      <Card.Content>
+        <StatusSelector
+          status={data.status as Status}
+          onChange={status => onChange({ ...data, status })}
+        />
+        <TextInput
+          mode="outlined"
+          placeholder="Add note"
+          value={data.note}
+          onChangeText={note => onChange({ ...data, note })}
+          style={styles.note}
+        />
+      </Card.Content>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#fff',
-    padding: 16,
-    marginVertical: 8,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2
-  },
-  title: { fontWeight: 'bold', marginBottom: 8 }
+  card: { marginVertical: 8 },
+  title: { fontWeight: 'bold' },
+  note: { marginTop: 8 }
 });

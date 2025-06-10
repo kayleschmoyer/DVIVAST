@@ -5,7 +5,10 @@ const API_BASE = 'http://localhost:3000/api';
 async function request(url: string, options?: RequestInit) {
   try {
     const res = await fetch(url, options);
-    if (!res.ok) throw new Error('Network response was not ok');
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || 'Network error');
+    }
     return await res.json();
   } catch (err) {
     log('ERROR', (err as Error).message);

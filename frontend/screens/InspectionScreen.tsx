@@ -2,22 +2,35 @@ import React, { useState } from 'react';
 import { ScrollView, View, StyleSheet } from 'react-native';
 import { Button, Snackbar } from 'react-native-paper';
 import PartCard from '../components/PartCard';
-import { InspectionPart } from '../types';
+import { QuadrantData } from '../types';
 import { submitInspection } from '../api/client';
 
 interface Props { estimateId: string; mechanicId: string }
 
 const parts = ['Brakes', 'Tires', 'Fluids'];
+const quadrants = ['FL', 'FR', 'RL', 'RR'];
 
 export default function InspectionScreen({ estimateId, mechanicId }: Props) {
-  const [data, setData] = useState<Record<string, InspectionPart>>({});
+  const [data, setData] = useState<Record<string, Record<string, QuadrantData>>>({});
   const [msg, setMsg] = useState('');
 
   const handleSubmit = async () => {
+    const partsPayload = Object.entries(data).flatMap(([part, quads]) =>
+      quadrants.map(q => {
+        const qData = quads[q] || { status: 'NA' };
+        return {
+          part,
+          quadrant: q,
+          status: qData.status,
+          note: qData.note,
+          photoUrl: qData.photoUri
+        };
+      })
+    );
     const payload = {
       estimateId,
       mechanicId,
-      parts: Object.entries(data).map(([part, partData]) => ({ part, ...partData })),
+      parts: partsPayload,
       timestamp: new Date().toISOString()
     };
     try {
@@ -35,7 +48,7 @@ export default function InspectionScreen({ estimateId, mechanicId }: Props) {
           <PartCard
             key={part}
             part={part}
-            data={data[part] || { quadrant: 'ALL', status: 'NA' }}
+            data={data[part] || {}}
             onChange={newData => setData(prev => ({ ...prev, [part]: newData }))}
           />
         ))}

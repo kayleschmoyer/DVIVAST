@@ -1,7 +1,7 @@
 import app from './app';
-import { log, LogLevel } from './utils/logger';
+import Logger from './utils/Logger';
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  log(LogLevel.INFO, `Server listening on port ${PORT}`);
+  Logger.info(`Server listening on port ${PORT}`);
 });

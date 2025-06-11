@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { saveInspection, InspectionPayload } from '../services/inspectionService';
-import { log, LogLevel } from '../utils/logger';
+import Logger from '../utils/Logger';
 
 export async function postInspection(req: Request, res: Response, next: NextFunction) {
   try {
@@ -8,7 +8,7 @@ export async function postInspection(req: Request, res: Response, next: NextFunc
     await saveInspection(payload);
     res.status(201).json({ message: 'Inspection saved.' });
   } catch (err) {
-    log(LogLevel.ERROR, `Failed to save inspection: ${(err as Error).message}`);
+    Logger.error(`Failed to save inspection`, err);
     next(err);
   }
 }
